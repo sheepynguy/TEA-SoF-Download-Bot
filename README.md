@@ -3,7 +3,7 @@ This program allows you to download the previous month's worth of Summary of Fin
 
 ## Setup
 1) Download the Selenium driver for your preferred web broswer. The following line is going to change if you don't use Edge:
-  - If you use Chrome
+    - If you use Chrome
     ```
     driver = webdriver.Chrome()
     ```
