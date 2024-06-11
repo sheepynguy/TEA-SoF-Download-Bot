@@ -10,6 +10,10 @@ import calendar
 # from msdrive import OneDrive
 # import onedrive
 
+# take a look at the link below to see how to connect to onedrive without making an azure account
+url2 = "https://learn.microsoft.com/en-us/answers/questions/1188163/how-to-download-onedrive-shared-files-from-a-pytho"
+# this is another website that could help connect onedrive to the local computer
+url3 = "https://medium.com/@aditya2806pawar/seamlessly-upload-and-download-files-to-sharepoint-onedrive-using-python-546f9f06b09d"
 
 # downloads the files based on the rows listed on the index array
 def download_multiple_files(rows, index, school):
@@ -21,14 +25,14 @@ def download_multiple_files(rows, index, school):
 
         # wait for file to download and rename it, but don't close the window
         old_name = r"C:\Users\Victoria Nguyen\Downloads\report.pdf"
-        file_path = r"C:\Users\Victoria Nguyen\Downloads"
         while not os.path.exists(old_name):
             time.sleep(2)
+        
+        # get the written out date the file was uploaded in Month Day, Year format
         char_length = len(school)
         month = calendar.month_name[int((row[1].text)[:2].strip("/"))]
         day = ""
         year = ""
-        # need to modify this because it won't get the days properly
         if (row[1].text)[1] == "/":
             day = (row[1].text)[2:4].strip("/")
             year = (row[1].text)[4:9].strip("/ ")
@@ -36,16 +40,16 @@ def download_multiple_files(rows, index, school):
             day = (row[1].text)[3:5].strip("/")
             year = (row[1].text)[5:10].strip("/ ")
 
-
+        # rename the file and move it into the SoF Reports folder
         new_name = '\\' + school[:char_length - 9] + " " + month + " " + day + ", " + year + ".pdf"
-        os.rename(old_name, file_path + new_name)
-        source =  file_path + new_name
+        os.rename(old_name, r"C:\Users\Victoria Nguyen\Downloads" + new_name)
+        source =  r"C:\Users\Victoria Nguyen\Downloads" + new_name
         destination = r"C:\Users\Victoria Nguyen\Documents\SoF Reports"
         try:
             shutil.move(source, destination)
-            print("File has been downloaded and moved")
+            print("File has been downloaded and moved" + "\n")
         except:
-            print("This file has already been downloaded")
+            print("This file has already been downloaded" + "\n")
     return
 
 
@@ -63,7 +67,7 @@ school_names = [
     "IMAGINE INTERNATIONAL ACADEMY OF NORTH TEXAS (043801)",
     "LEADERSHIP PREP SCHOOL (061804)",
     "LEGACY PREPARATORY (057846)",
-    "LONE STAR LANGUAGE ACADEMY (043802)",
+    "LONE STAR LANGUAGE ACADEMY (043802)",      # This is supposed to be the Imagine Lone Star Language Academy, but for some reason it is listed as the lone star language academy
     "MANARA ACADEMY (057844)",
     "MEYERPARK CHARTER (101855)",
     "THE PRO-VISION ACADEMY (101868)",
