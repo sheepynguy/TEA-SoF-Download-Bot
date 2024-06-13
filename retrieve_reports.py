@@ -7,16 +7,14 @@ from selenium.webdriver.common.by import By
 import time
 import datetime
 import calendar
+import connect_onedrive as OD
 # from msdrive import OneDrive
 # import onedrive
 
-# take a look at the link below to see how to connect to onedrive without making an azure account
-url2 = "https://learn.microsoft.com/en-us/answers/questions/1188163/how-to-download-onedrive-shared-files-from-a-pytho"
-# this is another website that could help connect onedrive to the local computer
-url3 = "https://medium.com/@aditya2806pawar/seamlessly-upload-and-download-files-to-sharepoint-onedrive-using-python-546f9f06b09d"
+# email the files to Dilon, since it has directory information in there which is private
 
 # downloads the files based on the rows listed on the index array
-def download_multiple_files(rows, index, school):
+def download_multiple_files(rows, index, school, drive):
     # iterates through each row marked by index to be searched and downloaded
     for line in index:
         row = rows[-(line)].find_elements(By.XPATH, ".//td")
@@ -24,7 +22,7 @@ def download_multiple_files(rows, index, school):
         link.click()
 
         # wait for file to download and rename it, but don't close the window
-        old_name = r"C:\Users\{User's Name}\Downloads\report.pdf"
+        old_name = r"C:\Users\Victoria Nguyen\Downloads\report.pdf" # os.environ['USERPROFILE'] is the alternative for %USERPROFILE%
         while not os.path.exists(old_name):
             time.sleep(2)
         
@@ -40,16 +38,15 @@ def download_multiple_files(rows, index, school):
             day = (row[1].text)[3:5].strip("/")
             year = (row[1].text)[5:10].strip("/ ")
 
-        # rename the file and move it into the SoF Reports folder
+        # rename the file to include the school name and date the report was uploaded
         new_name = '\\' + school[:char_length - 9] + " " + month + " " + day + ", " + year + ".pdf"
-        os.rename(old_name, r"C:\Users\{User's Name\Downloads" + new_name)
-        source =  r"C:\Users\{User's Name}\Downloads" + new_name
-        destination = r"C:\Users\{User's Name}\Documents\SoF Reports"
-        try:
-            shutil.move(source, destination)
-            print("File has been downloaded and moved" + "\n")
-        except:
-            print("This file has already been downloaded" + "\n")
+        os.rename(old_name, r"C:\Users\Victoria Nguyen\Downloads" + new_name)
+        # grabs a new access token just in case the previous one has expired, and uploads the file to the specified path on OneDrive
+        drive = OD.refresh_access_token()
+        drive.upload_item(file_path=r"C:\Users\Victoria Nguyen\Downloads" + new_name, item_path=r"Documents" + "\\" + new_name)
+        # deletes the file from the downloads folder so that there is only a copy on the cloud and not on the local drive
+        os.remove(r"C:\Users\Victoria Nguyen\Downloads" + new_name)
+
     return
 
 
@@ -85,6 +82,8 @@ school_names = [
 driver = webdriver.Edge()
 #  navigates to the TEA page to find the SoF reports
 driver.get("https://tealprod.tea.state.tx.us/fsp/Reports/ReportSelection.aspx")
+
+drive = OD.login_onedrive()
 
 # iterate through every school to pull reports from their table
 for school in school_names:
@@ -131,7 +130,7 @@ for school in school_names:
         elif int(month_today)-1 > int(month_web):
             break
 
-    download_multiple_files(rows, index, school)
+    download_multiple_files(rows, index, school, drive)
 
     # after downloading the reports, return back to the drop down page to repeat the process for the next school
     reset = driver.find_element(By.ID, "ctl00_Body_SofDistrictRunCancelButton")
