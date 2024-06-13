@@ -11,3 +11,4 @@ This program allows you to download the previous month's worth of Summary of Fin
 3) Open the command prompt and install the following python libraries
    ```
    py -m pip install selenium
+4) Replace the destination variable with the desired destination path you want the files to go on your local drive.
