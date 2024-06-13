@@ -24,7 +24,7 @@ def download_multiple_files(rows, index, school):
         link.click()
 
         # wait for file to download and rename it, but don't close the window
-        old_name = r"C:\Users\Victoria Nguyen\Downloads\report.pdf"
+        old_name = r"C:\Users\{User's Name}\Downloads\report.pdf"
         while not os.path.exists(old_name):
             time.sleep(2)
         
@@ -42,9 +42,9 @@ def download_multiple_files(rows, index, school):
 
         # rename the file and move it into the SoF Reports folder
         new_name = '\\' + school[:char_length - 9] + " " + month + " " + day + ", " + year + ".pdf"
-        os.rename(old_name, r"C:\Users\Victoria Nguyen\Downloads" + new_name)
-        source =  r"C:\Users\Victoria Nguyen\Downloads" + new_name
-        destination = r"C:\Users\Victoria Nguyen\Documents\SoF Reports"
+        os.rename(old_name, r"C:\Users\{User's Name\Downloads" + new_name)
+        source =  r"C:\Users\{User's Name}\Downloads" + new_name
+        destination = r"C:\Users\{User's Name}\Documents\SoF Reports"
         try:
             shutil.move(source, destination)
             print("File has been downloaded and moved" + "\n")
