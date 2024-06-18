@@ -1,4 +1,4 @@
-# TEA-SoF-Download-Bot
+# TEA SoF Download Bot
 This program allows you to download the previous month's worth of Summary of Finance reports from the TEA website. It utilizes Selenium, which helps do the human task of clicking and typing on the website.
 
 ## Setup
