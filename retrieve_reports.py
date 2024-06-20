@@ -1,4 +1,5 @@
 import os           # library used to interface with the os
+import shutil
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import Select
@@ -41,14 +42,14 @@ school_names = [
 
 
 
-folder_names =  [
+folder_paths =  [
     # these will change given the actual file names, so these aren't permanent
-    "A+ Academy",
+    "Gene Zhu - A+ Academy/Financials",
     #"Gene Zhu - George I Sanchez AAMA",    # Need to ask about whether this is AAMA - GIS or just AAMA
-    "Advantage Academy",
-    "ACA Team Folder",
+    "Gene Zhu - Advantage Academy/Financials",
+    "Gene Zhu - ACA Team Folder/Financials",
     #"Cityscape Schools",    #
-    "Cumberland Academy",
+    "Gene Zhu - Cumberland Academy/Financials",
     #"Golden Rule",
     #"IDEA Public Schools",
     #"Imagine",
@@ -72,7 +73,7 @@ folder_names =  [
 
 
 # downloads the files based on the rows listed on the index array
-def download_multiple_files(rows, index, school, drive, folder):
+def download_multiple_files(rows, index, school, folder_path):
     # iterates through each row marked by index to be searched and downloaded
     for line in index:
         row = rows[-(line)].find_elements(By.XPATH, ".//td")
@@ -80,7 +81,7 @@ def download_multiple_files(rows, index, school, drive, folder):
         link.click()
 
         # wait for file to download and rename it, but don't close the window
-        old_name = f"C:/Users/{os.getlogin()}/Downloads/report.pdf" # os.environ['USERPROFILE'] is the alternative for %USERPROFILE%
+        old_name = f"C:/Users/{os.getlogin()}/Downloads/report.pdf"
         while not os.path.exists(old_name):
             time.sleep(2)
         
@@ -99,11 +100,8 @@ def download_multiple_files(rows, index, school, drive, folder):
         # rename the file to include the school name and date the report was uploaded
         new_name = school[:char_length - 9] + " SoF " + month + " " + day + ", " + year + ".pdf"
         os.rename(old_name, f"C:/Users/{os.getlogin()}/Downloads/" + new_name)
-        # grabs a new access token just in case the previous one has expired, and uploads the file to the specified path on OneDrive
-        drive = OD.refresh_access_token()
-        OD.upload_file(new_name, folder, drive)
-        # deletes the file from the downloads folder so that there is only a copy on the cloud and not on the local drive
-        os.remove(f"C:/Users/{os.getlogin()}/Downloads/" + new_name)
+        # moves the file to a shared and synced onedrive folder
+        shutil.move(f"C:/Users/{os.getlogin()}/Downloads/" + new_name, f"C:/Users/{os.getlogin()}/Dynamic Support Solutions/{folder_path}/{new_name}")
 
     return
 
@@ -116,8 +114,6 @@ def download_multiple_files(rows, index, school, drive, folder):
 driver = webdriver.Edge()
 #  navigates to the TEA page to find the SoF reports
 driver.get("https://tealprod.tea.state.tx.us/fsp/Reports/ReportSelection.aspx")
-
-drive = OD.login_onedrive()
 
 # iterate through every school to pull reports from their table
 for j in range(len(school_names)):
@@ -164,7 +160,7 @@ for j in range(len(school_names)):
         elif int(month_today)-1 > int(month_web):
             break
 
-    download_multiple_files(rows, index, school_names[j], drive, folder_names[j])
+    download_multiple_files(rows, index, school_names[j], folder_paths[j])
 
     # after downloading the reports, return back to the drop down page to repeat the process for the next school
     reset = driver.find_element(By.ID, "ctl00_Body_SofDistrictRunCancelButton")
