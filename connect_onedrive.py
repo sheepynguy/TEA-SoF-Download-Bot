@@ -1,8 +1,7 @@
 import json
-import sys
 import msal
-from msdrive import OneDrive
 import requests
+import os
 
 
 
@@ -44,30 +43,74 @@ def refresh_access_token():
 
 # this function will take the file name and folder name parameters and upload the file to the designated folder
 def upload_file(file_name, folder_name, token):
-    # make a GET request to the API to look through OneDrive to find the folder
-    search_url = f"https://graph.microsoft.com/v1.0/me/drive/search(q=\'{folder_name}\')"
-    response = requests.get(search_url, headers={"Authorization": "Bearer " + token})
+    search_url = f"https://graph.microsoft.com/v1.0/search/query"
+    request_body = {
+    "requests": [
+        {
+            "entityTypes": [
+                "driveItem"
+            ],
+            "query": {
+                "queryString": folder_name
+            }
+        }
+    ]
+}
 
-    # if the request is successful, then it will get all the results from the search and return it back. The first result is the only one we will look at
-    folder = None
+    response = requests.post(search_url, headers={"Authorization": "Bearer " + token, "Content-Type": "application/json"}, json=request_body) 
     if response.status_code == 200:
-        results = response.json().get("value", [])
-        folder = results[0]
-
-    # use the folder's ID to upload the file to that folder
-    file_path = r"C:\Users\Victoria Nguyen\Downloads\\" + file_name
-    upload_url = f"https://graph.microsoft.com/v1.0/drives/{folder["parentReference"]["driveId"]}/items/{folder["id"]}:/{file_name}:/content"   # not sure if this url will work
-    headers = {"Authorization": "Bearer " + token,
-               "Content-Type": "application/octet-stream"}
-    
-    with open(file_path, "rb") as file:
-        file_content = file.read()
-
-    # make the PUT request to upload the file to the OneDrive folder
-    response = requests.put(upload_url, headers=headers, data=file_content)
-
-    if response.status_code == 201:
-        print('File uploaded successfully')
+        results = response.json().get("value")
+        results = results[0]["hitsContainers"][0]["hits"]   # this parses through the response to get the array we want
     else:
         print(response.status_code, response.text)
+
+
+    # this will get us the school's folder and then we can access the financials folder
+    folder = results[0]
+    search_url = f"https://graph.microsoft.com/v1.0/drives/{folder["resource"]["parentReference"]["driveId"]}/items/{folder["resource"]["id"]}/children"
+    response = requests.get(search_url, headers={"Authorization": "Bearer " + token})
+    if response.status_code == 200:
+        results = response.json().get("value")
+        for items in results:
+            if items["name"] == "Financials":
+                financials_folder = items
+                break
+    
+    # upload the file into the financials folder
+    upload_url = f"https://graph.microsoft.com/v1.0/drives/{financials_folder["parentReference"]["driveId"]}/items/{financials_folder["id"]}:/{file_name}:/content"
+
+    file_path = f"C:/Users/{os.getlogin()}/Downloads/" + file_name
+    with open(file_path , "rb") as file:
+        file_content = file.read()
+
+
+    response = requests.put(upload_url, headers={"Authorization": "Bearer " + result["access_token"], "Content-Type": "application/octect-stream"}, data=file_content)
+    if response.status_code == 201:
+        print("file uploaded successfully")
     return
+
+
+
+# We can use this to work through different file paths if different schools don't have the same file path
+#     search_url = f"https://graph.microsoft.com/v1.0/drives/{folder["resource"]["parentReference"]["driveId"]}/items/{folder["resource"]["id"]}/children"
+# response = requests.get(search_url, headers={"Authorization": "Bearer " + token})
+# if response.status_code == 200:
+# 	results = response.json().get("value")
+
+# # go through the file path to get the last folder
+# for node in path:
+# 	for items in results:
+# 		if items["name"] == node:
+# 			folder = items
+# 			break
+# 	if path.len > 1:
+# 		search_url = f"https://graph.microsoft.com/v1.0/drives/{folder["parentReference"]["driveId"]}/items/{folder["id"]}/children"
+# 		response = requests.get(search_url, headers={"Authorization": "Bearer " + token})
+# 		if response.status_code  == 200:
+# 			results = response.json().get("value")
+# 		else:
+# 			print(response.status_code)
+
+
+
+# upload_url = f"https://graph.microsoft.com/v1.0/drives/{folder["parentReference"]["driveId"]}/items/{folder["id"]}:/{file_name}:/content"

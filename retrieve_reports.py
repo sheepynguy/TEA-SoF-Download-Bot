@@ -1,5 +1,4 @@
 import os           # library used to interface with the os
-import shutil       # library used to move the files into a different directory
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import Select
@@ -8,66 +7,67 @@ import time
 import datetime
 import calendar
 import connect_onedrive as OD
-import requests
 
 
 
 school_names = [
     # after using the names, splice out the number which is 9 character with the space, and then append the .pdf to the end of the string
     "A+ ACADEMY (057829)",
-    "GEORGE I SANCHEZ CHARTER (101804)",
+    #"GEORGE I SANCHEZ CHARTER (101804)",
     "ADVANTAGE ACADEMY (057806)",
     "ARLINGTON CLASSICS ACADEMY (220802)",
-    "CITYSCAPE SCHOOLS (057841)",
+    #"CITYSCAPE SCHOOLS (057841)",
     "CUMBERLAND ACADEMY (212801)",
-    "GOLDEN RULE CHARTER SCHOOL (057835)",
-    "IDEA PUBLIC SCHOOLS (108807)",
-    "IMAGINE INTERNATIONAL ACADEMY OF NORTH TEXAS (043801)",
-    "LEADERSHIP PREP SCHOOL (061804)",
-    "LEGACY PREPARATORY (057846)",
-    "LONE STAR LANGUAGE ACADEMY (043802)",      # This is supposed to be the Imagine Lone Star Language Academy, but for some reason it is listed as the lone star language academy
-    "MANARA ACADEMY (057844)",
-    "MEYERPARK CHARTER (101855)",
-    "THE PRO-VISION ACADEMY (101868)",
-    "PIONEER TECHNOLOGY & ARTS ACADEMY (057850)",
-    "SAN ANTONIO PREPARATORY SCHOOLS (015840)",
-    "ST MARY'S ACADEMY CHARTER SCHOOL (013801)",
-    "TRINITY BASIN PREPARATORY (057813)",
-    "TRIVIUM ACADEMY (061805)",
-    "UME PREPARATORY ACADEMY (057845)",
-    "VILLAGE TECH SCHOOLS (057847)",
-    "WINFREE ACADEMY CHARTER SCHOOLS (057828)",
-    "NOVA ACADEMY (057809)",
-    "NYOS CHARTER SCHOOL (227804)"
+    # "GOLDEN RULE CHARTER SCHOOL (057835)",
+    # "IDEA PUBLIC SCHOOLS (108807)",
+    # "IMAGINE INTERNATIONAL ACADEMY OF NORTH TEXAS (043801)",
+    # "LEADERSHIP PREP SCHOOL (061804)",
+    # "LEGACY PREPARATORY (057846)",
+    # "LONE STAR LANGUAGE ACADEMY (043802)",      # This is supposed to be the Imagine Lone Star Language Academy, but for some reason it is listed as the lone star language academy
+    # "MANARA ACADEMY (057844)",
+    # "MEYERPARK CHARTER (101855)",
+    # "THE PRO-VISION ACADEMY (101868)",
+    # "PIONEER TECHNOLOGY & ARTS ACADEMY (057850)",
+    # "SAN ANTONIO PREPARATORY SCHOOLS (015840)",
+    # "ST MARY'S ACADEMY CHARTER SCHOOL (013801)",
+    # "TRINITY BASIN PREPARATORY (057813)",
+    # "TRIVIUM ACADEMY (061805)",
+    # "UME PREPARATORY ACADEMY (057845)",
+    # "VILLAGE TECH SCHOOLS (057847)",
+    # "WINFREE ACADEMY CHARTER SCHOOLS (057828)",
+    # "NOVA ACADEMY (057809)",
+    # "NYOS CHARTER SCHOOL (227804)"
                 ]
 
-file_names =  [
+
+
+folder_names =  [
     # these will change given the actual file names, so these aren't permanent
-    "Gene Zhu - A+ Academy",
-    "Gene Zhu - George I Sanchez AAMA",    # Need to ask about whether this is AAMA - GIS or just AAMA
-    "Gene Zhu - Advantage Academy",
-    "Gene Zhu - ACA Team Folder",
-    "Cityscape Schools",    #
-    "Gene Zhu - Cumberland Academy",
-    "Gene Zhu - Golden Rule",
-    "Gene Zhu - IDEA Public Schools",
-    "Gene Zhu - Imagine",
-    "Gene Zhu - Leadership Prep School",
-    "Gene Zhu - Legacy Prep Charter Academy",
-    "Gene Zhu - Lone Star Language Academy",
-    "Manara Academy",   #
-    "Meyerpark Charter",    #
-    "Pro-vision Academy",   #
-    "Gene Zhu - PTAA",
-    "Gene Zhu - San Antonio Prep",
-    "St. Mary's Academy Charter SChool",    #
-    "Gene Zhu - Trinity Basin Prep - TBP",
-    "Gene Zhu - Trivium Academy",
-    "Gene Zhu - UME Prep",
-    "Gene Zhu - Village Tech Schools",
-    "Winfree Academy Charter Schools"   #
-    "Gene Zhu - Nova Academy",
-    "Gene Zhu - NYOS Charter School"
+    "A+ Academy",
+    #"Gene Zhu - George I Sanchez AAMA",    # Need to ask about whether this is AAMA - GIS or just AAMA
+    "Advantage Academy",
+    "ACA Team Folder",
+    #"Cityscape Schools",    #
+    "Cumberland Academy",
+    #"Golden Rule",
+    #"IDEA Public Schools",
+    #"Imagine",
+    #"Leadership Prep School",
+    # "Legacy Prep Charter Academy",
+    # "Lone Star Language Academy",
+    # "Manara Academy",   #
+    # "Meyerpark Charter",    #
+    # "Pro-vision Academy",   #
+    # "PTAA",
+    # "San Antonio Prep",
+    # "St. Mary's Academy Charter School",    #
+    # "Trinity Basin Prep - TBP",
+    # "Trivium Academy",
+    # "UME Prep",
+    # "Village Tech Schools",
+    # "Winfree Academy Charter Schools"   #
+    # "Nova Academy",
+    # "NYOS Charter School"
 ]
 
 
@@ -80,7 +80,7 @@ def download_multiple_files(rows, index, school, drive, folder):
         link.click()
 
         # wait for file to download and rename it, but don't close the window
-        old_name = r"C:\Users\Victoria Nguyen\Downloads\report.pdf" # os.environ['USERPROFILE'] is the alternative for %USERPROFILE%
+        old_name = f"C:/Users/{os.getlogin()}/Downloads/report.pdf" # os.environ['USERPROFILE'] is the alternative for %USERPROFILE%
         while not os.path.exists(old_name):
             time.sleep(2)
         
@@ -97,19 +97,13 @@ def download_multiple_files(rows, index, school, drive, folder):
             year = (row[1].text)[5:10].strip("/ ")
 
         # rename the file to include the school name and date the report was uploaded
-        new_name = '\\' + school[:char_length - 9] + " " + month + " " + day + ", " + year + ".pdf"
-        os.rename(old_name, r"C:\Users\Victoria Nguyen\Downloads" + new_name)
+        new_name = school[:char_length - 9] + " SoF " + month + " " + day + ", " + year + ".pdf"
+        os.rename(old_name, f"C:/Users/{os.getlogin()}/Downloads/" + new_name)
         # grabs a new access token just in case the previous one has expired, and uploads the file to the specified path on OneDrive
         drive = OD.refresh_access_token()
-
-        OD.upload_file(new_name[1:], "2024 Cost Project - Victoria", drive)
-
-        # drive.upload_item(file_path=r"C:\Users\Victoria Nguyen\Downloads" + new_name, item_path=f"https://graph.microsoft.com/v1.0/me/drive" + "\\SoF Reports" + "\\" + new_name)
+        OD.upload_file(new_name, folder, drive)
         # deletes the file from the downloads folder so that there is only a copy on the cloud and not on the local drive
-        os.remove(r"C:\Users\Victoria Nguyen\Downloads" + new_name)
-
-
-
+        os.remove(f"C:/Users/{os.getlogin()}/Downloads/" + new_name)
 
     return
 
@@ -170,12 +164,8 @@ for j in range(len(school_names)):
         elif int(month_today)-1 > int(month_web):
             break
 
-    download_multiple_files(rows, index, school_names[j], drive, file_names[j])
+    download_multiple_files(rows, index, school_names[j], drive, folder_names[j])
 
     # after downloading the reports, return back to the drop down page to repeat the process for the next school
     reset = driver.find_element(By.ID, "ctl00_Body_SofDistrictRunCancelButton")
     reset.click()
-    
-
-
-
