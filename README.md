@@ -1,5 +1,5 @@
 # TEA SoF Download Bot
-This program allows you to download the previous month's worth of Summary of Finance reports from the TEA website. It utilizes Selenium, which helps do the human task of clicking and typing on the website.
+This program allows you to download the previous month's worth of Summary of Finance reports from the TEA website. It utilizes Selenium, which helps do the human task of clicking and typing on the website. It is also able to move the files to a synced OneDrive folder locally or can connect to OneDrive using a login.
 
 ## Setup
 1) Download the Selenium driver for your preferred web broswer. The following line is going to change if you don't use Edge:
