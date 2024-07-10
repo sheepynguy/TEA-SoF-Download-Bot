@@ -7,73 +7,78 @@ from selenium.webdriver.common.by import By
 import time
 import datetime
 import calendar
-import connect_onedrive as OD
+import openpyxl
+from xls2xlsx import XLS2XLSX
 
 
 
 school_names = [
     # after using the names, splice out the number which is 9 character with the space, and then append the .pdf to the end of the string
     "A+ ACADEMY (057829)",
-    #"GEORGE I SANCHEZ CHARTER (101804)",
+    "GEORGE I SANCHEZ CHARTER (101804)",
     "ADVANTAGE ACADEMY (057806)",
     "ARLINGTON CLASSICS ACADEMY (220802)",
-    #"CITYSCAPE SCHOOLS (057841)",
+    "CITYSCAPE SCHOOLS (057841)",
     "CUMBERLAND ACADEMY (212801)",
-    # "GOLDEN RULE CHARTER SCHOOL (057835)",
-    # "IDEA PUBLIC SCHOOLS (108807)",
-    # "IMAGINE INTERNATIONAL ACADEMY OF NORTH TEXAS (043801)",
-    # "LEADERSHIP PREP SCHOOL (061804)",
-    # "LEGACY PREPARATORY (057846)",
-    # "LONE STAR LANGUAGE ACADEMY (043802)",      # This is supposed to be the Imagine Lone Star Language Academy, but for some reason it is listed as the lone star language academy
-    # "MANARA ACADEMY (057844)",
-    # "MEYERPARK CHARTER (101855)",
-    # "THE PRO-VISION ACADEMY (101868)",
-    # "PIONEER TECHNOLOGY & ARTS ACADEMY (057850)",
-    # "SAN ANTONIO PREPARATORY SCHOOLS (015840)",
-    # "ST MARY'S ACADEMY CHARTER SCHOOL (013801)",
-    # "TRINITY BASIN PREPARATORY (057813)",
-    # "TRIVIUM ACADEMY (061805)",
-    # "UME PREPARATORY ACADEMY (057845)",
-    # "VILLAGE TECH SCHOOLS (057847)",
-    # "WINFREE ACADEMY CHARTER SCHOOLS (057828)",
-    # "NOVA ACADEMY (057809)",
-    # "NYOS CHARTER SCHOOL (227804)"
+    "GOLDEN RULE CHARTER SCHOOL (057835)",
+    "IDEA PUBLIC SCHOOLS (108807)",
+    "IMAGINE INTERNATIONAL ACADEMY OF NORTH TEXAS (043801)",
+    "LEADERSHIP PREP SCHOOL (061804)",
+    "LEGACY PREPARATORY (057846)",
+    "LONE STAR LANGUAGE ACADEMY (043802)",      # This is supposed to be the Imagine Lone Star Language Academy, but for some reason it is listed as the lone star language academy
+    "MANARA ACADEMY (057844)",
+    "MEYERPARK CHARTER (101855)",
+    "THE PRO-VISION ACADEMY (101868)",
+    "PIONEER TECHNOLOGY & ARTS ACADEMY (057850)",
+    "SAN ANTONIO PREPARATORY SCHOOLS (015840)",
+    "ST MARY'S ACADEMY CHARTER SCHOOL (013801)",
+    "TRINITY BASIN PREPARATORY (057813)",
+    "TRIVIUM ACADEMY (061805)",
+    "UME PREPARATORY ACADEMY (057845)",
+    "VILLAGE TECH SCHOOLS (057847)",
+    "WINFREE ACADEMY CHARTER SCHOOLS (057828)",
+    "NOVA ACADEMY (057809)",
+    "NYOS CHARTER SCHOOL (227804)"
                 ]
 
 
-
+# holds where the file is going to be relocated. If you want it to 
 folder_paths =  [
     # these will change given the actual file names, so these aren't permanent
     "Gene Zhu - A+ Academy/Financials",
-    #"Gene Zhu - George I Sanchez AAMA",    # Need to ask about whether this is AAMA - GIS or just AAMA
+    "Gene Zhu - George I Sanchez AAMA",    # Need to ask about whether this is AAMA - GIS or just AAMA
     "Gene Zhu - Advantage Academy/Financials",
     "Gene Zhu - ACA Team Folder/Financials",
-    #"Cityscape Schools",    #
+    "Gene Zhu - Cityscape Schools",    #
     "Gene Zhu - Cumberland Academy/Financials",
-    #"Golden Rule",
-    #"IDEA Public Schools",
-    #"Imagine",
-    #"Leadership Prep School",
-    # "Legacy Prep Charter Academy",
-    # "Lone Star Language Academy",
-    # "Manara Academy",   #
-    # "Meyerpark Charter",    #
-    # "Pro-vision Academy",   #
-    # "PTAA",
-    # "San Antonio Prep",
-    # "St. Mary's Academy Charter School",    #
-    # "Trinity Basin Prep - TBP",
-    # "Trivium Academy",
-    # "UME Prep",
-    # "Village Tech Schools",
-    # "Winfree Academy Charter Schools"   #
-    # "Nova Academy",
-    # "NYOS Charter School"
+    "Gene Zhu - Golden Rule",
+    "Gene Zhu - IDEA Public Schools",
+    "Gene Zhu - Imagine",
+    "Gene Zhu - Leadership Prep School",
+    "Gene Zhu - Legacy Prep Charter Academy",
+    "Gene Zhu - Lone Star Language Academy",
+    "Gene Zhu - Manara Academy",   #
+    "Gene Zhu - Meyerpark Charter",    #
+    "Gene Zhu - Pro-vision Academy",   #
+    "Gene Zhu - PTAA",
+    "Gene Zhu - San Antonio Prep",
+    "Gene Zhu - St. Mary's Academy Charter School",    #
+    "Gene Zhu - Trinity Basin Prep - TBP",
+    "Gene Zhu - Trivium Academy",
+    "Gene Zhu - UME Prep",
+    "Gene Zhu - Village Tech Schools",
+    "Gene Zhu - Winfree Academy Charter Schools"   #
+    "Gene Zhu - Nova Academy",
+    "Gene Zhu - NYOS Charter School"
 ]
+
+downloaded_cells = ['N18', 'N19', 'N20', 'N21', 'N22', 'N23', 'N25', 'N26', 'N28', 'N29', 'N30', 'N31', 'N32', 'N33', 'N34', 'N35', 'N37', 'N38', 'N39', 'N40', 'N43', 'N44', 'N45', 'N46', 'N47', 'N49', 'N50', 'N51', 'N52', 'N53', 'N54', 'N55', 'N56', 'N57', 'N58', 'N59', 'N61', 'N62', 'N63', 'N64', 'N65', 'N66', 'N67', 'N68', 'N69', 'N71', 'N72', 'N73', 'N74', 'N77', 'N78', 'N79', 'N80', 'N81', 'N82', 'N83', 'N84', 'N85', 'N87']
+
+
 
 
 # downloads the files based on the rows listed on the index array
-def download_multiple_files(rows, index, school, folder_path):
+def download_pdf_files(rows, index, school, folder_path):
     # iterates through each row marked by index to be searched and downloaded
     for line in index:
         row = rows[-(line)].find_elements(By.XPATH, ".//td")
@@ -84,7 +89,7 @@ def download_multiple_files(rows, index, school, folder_path):
         old_name = f"C:/Users/{os.getlogin()}/Downloads/report.pdf"
         while not os.path.exists(old_name):
             time.sleep(2)
-        
+            
         # get the written out date the file was uploaded in Month Day, Year format
         char_length = len(school)
         month = calendar.month_name[int((row[1].text)[:2].strip("/"))]
@@ -106,7 +111,57 @@ def download_multiple_files(rows, index, school, folder_path):
     return
 
 
+# downloads the excel files based on the rows listed, and deposits them into a MASTER excel file
+def download_excel_files(rows, index, school, folder_path):
+    for line in index:
+        row = rows[-(line)].find_elements(By.XPATH, ".//td")
+        link = row[6].find_element(By.XPATH, ".//a")
+        link.click()
 
+        old_name = f"C:/Users/{os.getlogin()}/Downloads/report.xls"
+        while not os.path.exists(old_name):
+            time.sleep(2)
+
+    # convert the fresh downloaded file from xls to xlsx
+        old_file = XLS2XLSX(f"C:/Users/{os.getlogin()}/Downloads/report.xls")
+        old_file.to_xlsx(f"C:/Users/{os.getlogin()}/Downloads/report.xlsx")
+
+    # take the contents of the report and put it into the MASTER excel file
+        wb1 = openpyxl.load_workbook(f"C:/Users/{os.getlogin()}/Downloads/report.xlsx")
+        wb2 = openpyxl.load_workbook(f"C:/Users/{os.getlogin()}/Downloads/testing.xlsx")
+
+        ws1 = wb1.active
+        ws2 = wb2.active    # this will change when I figure out how the sheets will look
+        # make a search for the school sheet in the workbook
+
+
+        column = "A"
+        # retrieve the first empty row in the master sheet
+        last_row = 2
+        while True:
+            if ws2[column + str(last_row)].value is None:
+                break
+            last_row += 1
+
+        # put the school, date retrieved, and school year
+        ws2["A" + str(last_row)].value = school[:len(school) - 9]
+        ws2["B" + str(last_row)].value = row[1].text
+        ws2["C" + str(last_row)].value = "2023-2024"
+
+        i = 0
+        for col in ws2.iter_cols(min_col=4, max_col=len(downloaded_cells)+2, min_row=last_row, max_row=last_row):
+            for cell in col:
+                cell.value = ws1[downloaded_cells[i]].value
+            i += 1
+
+
+        wb2.save(f"C:/Users/{os.getlogin()}/Downloads/testing.xlsx")
+
+        os.remove(f"C:/Users/{os.getlogin()}/Downloads/report.xls")
+        os.remove(f"C:/Users/{os.getlogin()}/Downloads/report.xlsx")
+    
+
+    return
 
 
 
@@ -126,7 +181,7 @@ for j in range(len(school_names)):
 
     # selects the school year for the second drop down
     school_year = Select(driver.find_element(By.ID, "ctl00_Body_SchoolYearDropDownList"))
-    school_year.select_by_value(datetime.datetime.now().strftime("%Y"))
+    school_year.select_by_value("2024")
 
     # inputs the school name and presses submit
     name_input = driver.find_element(By.ID, "ctl00_Body_DistrictIdTextBox")
@@ -160,7 +215,8 @@ for j in range(len(school_names)):
         elif int(month_today)-1 > int(month_web):
             break
 
-    download_multiple_files(rows, index, school_names[j], folder_paths[j])
+    # download_pdf_files(rows, index, school_names[j], folder_paths[j])
+    download_excel_files(rows, index, school_names[j], folder_paths[j])
 
     # after downloading the reports, return back to the drop down page to repeat the process for the next school
     reset = driver.find_element(By.ID, "ctl00_Body_SofDistrictRunCancelButton")
