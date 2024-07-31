@@ -11,9 +11,8 @@ import openpyxl
 from xls2xlsx import XLS2XLSX
 
 
-
+# The name of the school. When you add more schools to this list, follow the same format as seen below. The placement of the school in this list should match the destination in the other list.
 school_names = [
-    # after using the names, splice out the number which is 9 character with the space, and then append the .pdf to the end of the string
     "A+ ACADEMY (057829)",
     "GEORGE I SANCHEZ CHARTER (101804)",
     "ADVANTAGE ACADEMY (057806)",
@@ -25,7 +24,7 @@ school_names = [
     "IMAGINE INTERNATIONAL ACADEMY OF NORTH TEXAS (043801)",
     "LEADERSHIP PREP SCHOOL (061804)",
     "LEGACY PREPARATORY (057846)",
-    "LONE STAR LANGUAGE ACADEMY (043802)",      # This is supposed to be the Imagine Lone Star Language Academy, but for some reason it is listed as the lone star language academy
+    "LONE STAR LANGUAGE ACADEMY (043802)",
     "MANARA ACADEMY (057844)",
     "MEYERPARK CHARTER (101855)",
     "THE PRO-VISION ACADEMY (101868)",
@@ -42,11 +41,10 @@ school_names = [
                 ]
 
 
-# holds where the file is going to be relocated. If you want it to 
+# The destination for the PDF files. Change these as you like, but make sure the letter casing is exact
 folder_paths =  [
-    # these will change given the actual file names, so these aren't permanent
     "Gene Zhu - A+ Academy/Financials",
-    "Gene Zhu - George I Sanchez AAMA",    # Need to ask about whether this is AAMA - GIS or just AAMA
+    "Gene Zhu - George I Sanchez AAMA", 
     "Gene Zhu - Advantage Academy/Financials",
     "Gene Zhu - ACA Team Folder/Financials",
     "Gene Zhu - Cityscape Schools",    #
@@ -72,7 +70,8 @@ folder_paths =  [
     "Gene Zhu - NYOS Charter School"
 ]
 
-downloaded_cells = ['N18', 'N19', 'N20', 'N21', 'N22', 'N23', 'N25', 'N26', 'N28', 'N29', 'N30', 'N31', 'N32', 'N33', 'N34', 'N35', 'N37', 'N38', 'N39', 'N40', 'N43', 'N44', 'N45', 'N46', 'N47', 'N49', 'N50', 'N51', 'N52', 'N53', 'N54', 'N55', 'N56', 'N57', 'N58', 'N59', 'N61', 'N62', 'N63', 'N64', 'N65', 'N66', 'N67', 'N68', 'N69', 'N71', 'N72', 'N73', 'N74', 'N77', 'N78', 'N79', 'N80', 'N81', 'N82', 'N83', 'N84', 'N85', 'N87']
+# The cell location when copying into the master excel file
+downloaded_cells = ['N18', 'N19', 'N20', 'N21', 'N22', 'N23', 'N25', 'N26', 'N28', 'N29', 'N30', 'N31', 'N32', 'N33', 'N34', 'N35', 'N37', 'N38', 'N39', 'N40', 'N43', 'N44', 'N45', 'N46', 'N47', 'N49', 'N50', 'N51', 'N52', 'N53', 'N54', 'N55', 'N56', 'N57', 'N58', 'N59', 'N61', 'N62', 'N63', 'N64', 'N65', 'N66', 'N67', 'N68', 'N69', 'N71', 'N72', 'N73', 'N74', 'N77', 'N78', 'N79', 'N81', 'N82', 'N83', 'N84', 'N85', 'N87']
 
 
 
@@ -112,7 +111,7 @@ def download_pdf_files(rows, index, school, folder_path):
 
 
 # downloads the excel files based on the rows listed, and deposits them into a MASTER excel file
-def download_excel_files(rows, index, school, folder_path):
+def download_excel_files(rows, index, school):
     for line in index:
         row = rows[-(line)].find_elements(By.XPATH, ".//td")
         link = row[6].find_element(By.XPATH, ".//a")
@@ -128,7 +127,7 @@ def download_excel_files(rows, index, school, folder_path):
 
     # take the contents of the report and put it into the MASTER excel file
         wb1 = openpyxl.load_workbook(f"C:/Users/{os.getlogin()}/Downloads/report.xlsx")
-        wb2 = openpyxl.load_workbook(f"C:/Users/{os.getlogin()}/Downloads/testing.xlsx")
+        wb2 = openpyxl.load_workbook(f"C:/Users/{os.getlogin()}/Downloads/Master Sof.xlsx")
 
         ws1 = wb1.active
         ws2 = wb2.active    # this will change when I figure out how the sheets will look
@@ -145,18 +144,21 @@ def download_excel_files(rows, index, school, folder_path):
 
         # put the school, date retrieved, and school year
         ws2["A" + str(last_row)].value = school[:len(school) - 9]
-        ws2["B" + str(last_row)].value = row[1].text
-        ws2["C" + str(last_row)].value = "2023-2024"
+        ws2["B" + str(last_row)].value = school[len(school) - 8:].strip("()")
+        ws2["C" + str(last_row)].value = row[1].text
+        ws2["D" + str(last_row)].value = "2023-2024"
 
         i = 0
-        for col in ws2.iter_cols(min_col=4, max_col=len(downloaded_cells)+2, min_row=last_row, max_row=last_row):
+        for col in ws2.iter_cols(min_col=5, max_col=len(downloaded_cells)+4, min_row=last_row, max_row=last_row):
             for cell in col:
                 cell.value = ws1[downloaded_cells[i]].value
+                cell.number_format = "0.00"
             i += 1
 
-
-        wb2.save(f"C:/Users/{os.getlogin()}/Downloads/testing.xlsx")
-
+        # save the contents of the data that was just dumped into the file
+        wb2.save(f"C:/Users/{os.getlogin()}/Downloads/Master Sof.xlsx")
+        wb2.close()
+        # delete the reports that we no longer need
         os.remove(f"C:/Users/{os.getlogin()}/Downloads/report.xls")
         os.remove(f"C:/Users/{os.getlogin()}/Downloads/report.xlsx")
     
@@ -215,8 +217,8 @@ for j in range(len(school_names)):
         elif int(month_today)-1 > int(month_web):
             break
 
-    # download_pdf_files(rows, index, school_names[j], folder_paths[j])
-    download_excel_files(rows, index, school_names[j], folder_paths[j])
+    download_pdf_files(rows, index, school_names[j], folder_paths[j])
+    download_excel_files(rows, index, school_names[j])
 
     # after downloading the reports, return back to the drop down page to repeat the process for the next school
     reset = driver.find_element(By.ID, "ctl00_Body_SofDistrictRunCancelButton")
