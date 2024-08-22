@@ -168,7 +168,7 @@ def download_excel_files(rows, index, school):
 
 
 # creates an instance of the Edge driver
-driver = webdriver.Edge()
+driver = webdriver.Chrome()
 #  navigates to the TEA page to find the SoF reports
 driver.get("https://tealprod.tea.state.tx.us/fsp/Reports/ReportSelection.aspx")
 
