@@ -1,5 +1,4 @@
 import os           # library used to interface with the os
-import shutil
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import Select
@@ -71,13 +70,13 @@ folder_paths =  [
 downloaded_cells = ['N18', 'N19', 'N20', 'N21', 'N22', 'N23', 'N25', 'N26', 'N28', 'N29', 'N30', 'N31', 'N32', 'N33', 'N34', 'N35', 'N37', 'N38', 'N39', 'N40', 'N43', 'N44', 'N45', 'N46', 'N47', 'N49', 'N50', 'N51', 'N52', 'N53', 'N54', 'N55', 'N56', 'N57', 'N58', 'N59', 'N61', 'N62', 'N63', 'N64', 'N65', 'N66', 'N67', 'N68', 'N69', 'N71', 'N72', 'N73', 'N74', 'N77', 'N78', 'N79', 'N81', 'N82', 'N83', 'N84', 'N85', 'N87']
 
 # Cell titles for repeated use
-cell_titles = ['District Name', 'ID', 'Date Uploaded', 'School Year', 'Refined ADA', 'Reg. Prog. ADA', 'SpEd FTEs', 'CT FTEs', 'Weighted ADA', 'PEIMS Enroll','Prior TY State Cert. Prop. Value', 'Curr. TY State Cert. Prop. Value', 'Curr. TY M&O Tax Rate', 'Curr. TY Tier 1 M&O Tax Rate', 'Max. Compress. Tax Rate', 'SY Tax Collections', 'Curr. TY I&S Tax Rate', 'SY I&X Tax Collect.', 'SY Total Tax Collect.', 'SY Total Tax Levy', 'District Basic Allot * TR/MCR', 'SSA ADA', 'ASF ADA', 'Per Capita Rate', '11-Reg. Prog. Allot 48.051', 'Sm.&Mid-Size Allot 48.101', '23-SpEd Adj. Allot 48.102', '37-Dyslexia Allot 48.103', '24-Compens. Edu Allot 48.104', '25-Bilingual Ed Allot 48.105', '22-CT Allot 48.106', '11-Public Ed Grant 48.107', '36-Early Ed Allot 48.108', '21-GT Adj Allot 48.109', '38-CCMR Outcomes Bonus 48.110', 'Fast Growth Allot 48.111', 'Teacher Incentive Allot 48.112', 'Mentor Prog Allot 48.114', 'School Safety Allot 48.115', 'R-PEP Allot & Outcomes Bonux 48.118', '99-Transport Allot 48.151', '99-New Instruc Facility Allot 48.152', 'Dropout Rec.&Res. Placement Facil. Allot 48.153', 'Tui Allot (Dist. w/ not all GL) 48.154', 'College Prep Assess Reimburse 48.155', 'Cert Exam Reimburse 48.156', 'Total Cost Tier 1', 'Local Fund Assign', 'Per Capita Dist. from ASF', 'FSP State Share Tier 1', 'Tier 2', 'Other Prog', 'Total FSP Op. Funding', '199/5812 - FSF', '199/5811 - ASF', '410/5829 - IM&TF', '599/5829 - EDA', '599/5829 - IFA(Bond)', '199/5829 - IFA(Lease Purchase)', 'ASAHE for Facil', 'Total FSP/ASF State Aid', 'Local Revenue in Excess Ent.']
+cell_titles = ['District Name', 'Charter ID', 'Date Uploaded', 'School Year', 'Refined ADA', 'Reg. Prog. ADA', 'SpEd FTEs', 'CT FTEs', 'Weighted ADA', 'PEIMS Enroll','Prior TY State Cert. Prop. Value', 'Curr. TY State Cert. Prop. Value', 'Curr. TY M&O Tax Rate', 'Curr. TY Tier 1 M&O Tax Rate', 'Max. Compress. Tax Rate', 'SY Tax Collections', 'Curr. TY I&S Tax Rate', 'SY I&X Tax Collect.', 'SY Total Tax Collect.', 'SY Total Tax Levy', 'District Basic Allot * TR/MCR', 'SSA ADA', 'ASF ADA', 'Per Capita Rate', '11-Reg. Prog. Allot 48.051', 'Sm.&Mid-Size Allot 48.101', '23-SpEd Adj. Allot 48.102', '37-Dyslexia Allot 48.103', '24-Compens. Edu Allot 48.104', '25-Bilingual Ed Allot 48.105', '22-CT Allot 48.106', '11-Public Ed Grant 48.107', '36-Early Ed Allot 48.108', '21-GT Adj Allot 48.109', '38-CCMR Outcomes Bonus 48.110', 'Fast Growth Allot 48.111', 'Teacher Incentive Allot 48.112', 'Mentor Prog Allot 48.114', 'School Safety Allot 48.115', 'R-PEP Allot & Outcomes Bonux 48.118', '99-Transport Allot 48.151', '99-New Instruc Facility Allot 48.152', 'Dropout Rec.&Res. Placement Facil. Allot 48.153', 'Tui Allot (Dist. w/ not all GL) 48.154', 'College Prep Assess Reimburse 48.155', 'Cert Exam Reimburse 48.156', 'Total Cost Tier 1', 'Local Fund Assign', 'Per Capita Dist. from ASF', 'FSP State Share Tier 1', 'Tier 2', 'Other Prog', 'Total FSP Op. Funding', '199/5812 - FSF', '199/5811 - ASF', '410/5829 - IM&TF', '599/5829 - EDA', '599/5829 - IFA(Bond)', '199/5829 - IFA(Lease Purchase)', 'ASAHE for Facil', 'Total FSP/ASF State Aid', 'Local Revenue in Excess Ent.']
 
 
 
 def download_excel_files(rows, index, school):
     for line in index:
-        row = rows[-(line)].find_elements(By.XPATH, ".//td")
+        row = rows[line].find_elements(By.XPATH, ".//td")
         link = row[6].find_element(By.XPATH, ".//a")
         link.click()
 
@@ -170,23 +169,52 @@ for j in range(len(school_names)):
     name_input.send_keys(school_names[j])
     name_input.send_keys(Keys.ENTER)
 
-    # makes an index list of which reports to download for a multi-month time span; ending_month includes that month you want to get the reports from
+
+###This section uses the wrong dates that I'm looking at, so I need to be more specific in what I want
+    # makes an index list of which reports to download for a multi-month time span
+    # does not include the ending_month
+    # use <>_year variables to indicate how far back you want to get the reports from
     starting_month = 5
-    ending_month = 8
+    starting_year = 2024
+    ending_month = 9
+    ending_year = 2024
 
     # get the location of the rows
     table = driver.find_element(By.ID, "ctl00_Body_SofDistrictRunGridView")
     rows = table.find_elements(By.XPATH, ".//tr")
 
-    # iterate through the table to get a list of reports to look through
+    # iterate through the table to find the first report to download
+    saved = 0
     index = []
     for i in range(1, len(rows)):
         row = rows[i].find_elements(By.XPATH, ".//td")
-        row_month = row[1].text[:2].strip("/")
-        if int(row_month) >= starting_month and int(row_month) <= ending_month:
-            index.append(i)
-        elif int(row_month) > ending_month:
+        
+        # if the year corresponds with that range, then we will start pulling from the 
+        date = row[1].text[:10].strip(" ")
+        if " " in date:
+            ind = date.index(" ")
+            date = date[:ind]
+        month = row[1].text[:2].strip("/")
+        year = date[-4:]
+        if int(year) == starting_year and int(month) == starting_month:
+            saved = i 
             break
+
+    for i in range(saved, len(rows)):
+        row = rows[i].find_elements(By.XPATH, ".//td")
+
+        # get the month and year of the report so we know whether or not to finish 
+        date = row[1].text[:10].strip(" ")
+        if " " in date:
+            ind = date.index(" ")
+            date = date[:ind]
+        month = row[1].text[:2].strip("/")
+        year = date[-4:]
+        if month == ending_month and year == ending_year:
+            break
+        index.append(i)
+        
+
     
     download_excel_files(rows, index, school_names[j])
 
