@@ -73,6 +73,8 @@ folder_paths =  [
 # The cell location when copying into the master excel file
 downloaded_cells = ['N18', 'N19', 'N20', 'N21', 'N22', 'N23', 'N25', 'N26', 'N28', 'N29', 'N30', 'N31', 'N32', 'N33', 'N34', 'N35', 'N37', 'N38', 'N39', 'N40', 'N43', 'N44', 'N45', 'N46', 'N47', 'N49', 'N50', 'N51', 'N52', 'N53', 'N54', 'N55', 'N56', 'N57', 'N58', 'N59', 'N61', 'N62', 'N63', 'N64', 'N65', 'N66', 'N67', 'N68', 'N69', 'N71', 'N72', 'N73', 'N74', 'N77', 'N78', 'N79', 'N81', 'N82', 'N83', 'N84', 'N85', 'N87']
 
+# Cell titles for repeated use
+cell_titles = ['District Name', 'Charter ID', 'Date Uploaded', 'School Year', 'Refined ADA', 'Reg. Prog. ADA', 'SpEd FTEs', 'CT FTEs', 'Weighted ADA', 'PEIMS Enroll','Prior TY State Cert. Prop. Value', 'Curr. TY State Cert. Prop. Value', 'Curr. TY M&O Tax Rate', 'Curr. TY Tier 1 M&O Tax Rate', 'Max. Compress. Tax Rate', 'SY Tax Collections', 'Curr. TY I&S Tax Rate', 'SY I&X Tax Collect.', 'SY Total Tax Collect.', 'SY Total Tax Levy', 'District Basic Allot * TR/MCR', 'SSA ADA', 'ASF ADA', 'Per Capita Rate', '11-Reg. Prog. Allot 48.051', 'Sm.&Mid-Size Allot 48.101', '23-SpEd Adj. Allot 48.102', '37-Dyslexia Allot 48.103', '24-Compens. Edu Allot 48.104', '25-Bilingual Ed Allot 48.105', '22-CT Allot 48.106', '11-Public Ed Grant 48.107', '36-Early Ed Allot 48.108', '21-GT Adj Allot 48.109', '38-CCMR Outcomes Bonus 48.110', 'Fast Growth Allot 48.111', 'Teacher Incentive Allot 48.112', 'Mentor Prog Allot 48.114', 'School Safety Allot 48.115', 'R-PEP Allot & Outcomes Bonux 48.118', '99-Transport Allot 48.151', '99-New Instruc Facility Allot 48.152', 'Dropout Rec.&Res. Placement Facil. Allot 48.153', 'Tui Allot (Dist. w/ not all GL) 48.154', 'College Prep Assess Reimburse 48.155', 'Cert Exam Reimburse 48.156', 'Total Cost Tier 1', 'Local Fund Assign', 'Per Capita Dist. from ASF', 'FSP State Share Tier 1', 'Tier 2', 'Other Prog', 'Total FSP Op. Funding', '199/5812 - FSF', '199/5811 - ASF', '410/5829 - IM&TF', '599/5829 - EDA', '599/5829 - IFA(Bond)', '199/5829 - IFA(Lease Purchase)', 'ASAHE for Facil', 'Total FSP/ASF State Aid', 'Local Revenue in Excess Ent.']
 
 
 
@@ -171,6 +173,18 @@ def download_excel_files(rows, index, school):
 driver = webdriver.Chrome()
 #  navigates to the TEA page to find the SoF reports
 driver.get("https://tealprod.tea.state.tx.us/fsp/Reports/ReportSelection.aspx")
+
+wb = openpyxl.load_workbook(f"C:/Users/{os.getlogin()}/Downloads/Master Sof.xlsx")
+ws = wb.active
+max_col = len(cell_titles)
+k = 0
+for col in ws.iter_cols(min_col = 1, max_col=max_col, min_row=1, max_row=1):
+    for cell in col:
+        cell.value = cell_titles[k]
+    k += 1
+wb.save(f"C:/Users/{os.getlogin()}/Downloads/Master Sof.xlsx")
+wb.close()
+
 
 # iterate through every school to pull reports from their table
 for j in range(len(school_names)):
